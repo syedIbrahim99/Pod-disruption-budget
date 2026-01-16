@@ -256,13 +256,7 @@ spec:
 
 ---
 
-## 11. Interview‑Ready Explanation
-
-> When draining a node, Kubernetes evicts pods one by one. Before each eviction, it evaluates the PodDisruptionBudget. If evicting a pod would cause the number of AVAILABLE pods to fall below the configured minimum, the eviction is denied and the drain operation stops. PDB protects availability, not scheduling capacity.
-
----
-
-## 12. Key Takeaway
+## 11. Key Takeaway
 
 **PodDisruptionBudget protects application availability, not node maintenance convenience.**
 
