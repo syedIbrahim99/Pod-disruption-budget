@@ -1,4 +1,4 @@
-# Pod Disruption Budget (PDB) – Drain Behavior Explained (Hands‑On)
+# Pod Disruption Budget (PDB) – Drain Behavior Explained (Hands-On)
 
 ---
 
@@ -90,7 +90,7 @@ PDB checks **only one thing** during eviction:
 
 ---
 
-## 5. Hands‑On Walkthrough (Step by Step)
+## 5. Hands-On Walkthrough (Step by Step)
 
 ### Step 1: Deploy NGINX
 
@@ -129,9 +129,9 @@ nginx-pdb  4               2
 
 ---
 
-## 6. Drain Worker‑3 (Allowed Case)
+## 6. Drain Worker-3 (Allowed Case)
 
-### Pods on worker‑3
+### Pods on worker-3
 
 ```
 nginx-pod-5
@@ -167,9 +167,9 @@ Drain **succeeds**.
 
 ---
 
-## 7. Drain Worker‑2 (Blocked Case)
+## 7. Drain Worker-2 (Blocked Case)
 
-### Pods on worker‑2
+### Pods on worker-2
 
 ```
 nginx-pod-3
@@ -195,7 +195,25 @@ kubectl drain worker-2 --ignore-daemonsets
 
 ---
 
-## 8. Common Misunderstanding (Very Important)
+## 8. Revert / Backup Action (Uncordon Node)
+
+If you want to **revert the drain operation** and allow the node to schedule pods again:
+
+```bash
+kubectl uncordon worker-2
+```
+
+### What this does
+
+* Marks the node as **Schedulable**
+* New pods can again be placed on `worker-2`
+* Does **not** automatically move existing pods back
+
+📌 `uncordon` only re-enables scheduling, it does not rebalance pods.
+
+---
+
+## 9. Common Misunderstanding (Very Important)
 
 ❌ Wrong assumption:
 
@@ -209,7 +227,7 @@ kubectl drain worker-2 --ignore-daemonsets
 
 ---
 
-## 9. Maximum Allowed Disruption
+## 10. Maximum Allowed Disruption
 
 ```
 Total pods = 6
@@ -222,7 +240,7 @@ Allowed disruptions = 6 - 4 = 2
 
 ---
 
-## 10. How to Successfully Drain Worker‑2
+## 11. How to Successfully Drain Worker-2
 
 ### Option 1: Scale Deployment (YAML)
 
@@ -256,8 +274,67 @@ spec:
 
 ---
 
-## 11. Key Takeaway
+## 12. When Do We Use PodDisruptionBudget (PDB)?
+
+PDB is used whenever **planned disruptions** can affect application availability.
+
+### Common Real-World Scenarios
+
+### 1. Node Maintenance
+
+* OS patching
+* Kernel upgrades
+* Hardware replacement
+* Cloud provider maintenance
+
+➡️ Ensures minimum pods stay available during node drain.
+
+---
+
+### 2. Cluster Scaling
+
+* Scaling worker nodes down
+* Auto-scaling events
+
+➡️ Prevents too many pods from being evicted at once.
+
+---
+
+### 3. Application Upgrades
+
+* Rolling updates
+* Configuration changes
+* Image upgrades
+
+➡️ Guarantees service availability during updates.
+
+---
+
+### 4. Preventing Human Errors
+
+* Accidental `kubectl drain`
+* Maintenance during peak traffic
+
+➡️ Acts as a **safety guardrail**.
+
+---
+
+### 5. Stateful or Critical Services
+
+* Databases
+* Authentication services
+* Payment services
+
+➡️ Ensures quorum or minimum replicas are always up.
+
+---
+
+## 13. Key Takeaway
 
 **PodDisruptionBudget protects application availability, not node maintenance convenience.**
 
 Eviction safety is checked first. Scheduling happens later.
+
+---
+
+
